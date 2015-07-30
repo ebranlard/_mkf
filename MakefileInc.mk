@@ -38,8 +38,10 @@ ifeq ($(LIB_ACCELERATOR),)
         LIB_ACCELERATOR=1
     endif
 endif
-# HAWC: 0: No hawc, 1: Hawc2aero, 2: hawc2
-HAWC =0
+ifeq ($(HAWC),)
+	# HAWC: 0: No hawc, 1: Hawc2aero, 2: hawc2
+	HAWC =0
+endif
 
 # for backward compatibility
 NOHAWC =1
