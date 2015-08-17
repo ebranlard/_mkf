@@ -54,9 +54,9 @@ ifeq ($(FCOMPILER),0)
     FFOPT      = -O3
     FFOPTO5    = -O5
     FFOPENMP   = -fopenmp
-    FFWARN     = -Wall -Wno-intrinsic-shadow  -Wtabs -Wuninitialized -O
+    FFWARN     = -Wall -Wno-intrinsic-shadow  -Wtabs -Wuninitialized -O -Wunused
 #     -Wno-c-binding-type -Wno-unused-function 
-    FFWARNEXTRA= -Wcharacter-truncation -Wextra -Wimplicit-interface -Wimplicit-procedure -Wunderflow -Wunused-dummy-argument -Wunused-parameter -Wmaybe-uninitialized 
+    FFWARNEXTRA= -Wcharacter-truncation -Wextra -Wno-implicit-interface -Wno-implicit-procedure -Wunderflow -Wunused-dummy-argument -Wunused-parameter -Wmaybe-uninitialized 
     FFDEBUGINFO= -g
     FFDEBUG    = -fbounds-check -finit-real=nan 
     FFPE       = -ffpe-trap=invalid,zero,overflow 
@@ -267,28 +267,34 @@ endif
 # MPI
 MPIFC  =   mpif90
 MPIRUN =   mpirun -n $(PPN)
+RUN =   mpirun 
 ifeq ($(strip $(HOSTNAME)),jess.dtu.dk)
     MPIFC  =   mpiifort
     MPIRUN =   mpirun -n $(PPN)
+    RUN    =   mpirun 
 endif
 ifeq ($(strip $(PBS_O_HOST)),jess.dtu.dk)
     MPIFC  =   mpiifort
     MPIRUN =   mpirun -n $(PPN)
+    RUN    =   mpirun 
 endif
 ifeq ($(strip $(HOSTNAME)),g-000.risoe.dk)
     MPIFC  =   mpiifort
     MPIRUN =   mpirun -n $(PPN)
+    RUN    =   mpirun 
 endif
 ifeq ($(strip $(HOSTNAME)),work)
 ifeq ($(FCOMPILER),0)
 MPIFC  =   mpif90.openmpi
 MPIRUN =   mpirun.openmpi -n $(PPN)
+    RUN    =   mpirun.openmpi
 endif
 endif
 ifeq ($(strip $(HOSTNAME)),olympe)
 ifeq ($(FCOMPILER),0)
 MPIFC  =   mpif90.openmpi
 MPIRUN =   mpirun.openmpi -n $(PPN)
+RUN    =   mpirun.openmpi
 endif
 endif
 
