@@ -1,5 +1,5 @@
+f=f90
 
-FFWARNEXTRA     = 
 # INTEL FORTRAN COMPILER
 ifeq ($(FCOMPILER),1)
     FC         = ifort
@@ -7,10 +7,12 @@ ifeq ($(FCOMPILER),1)
     FFFREE     = -free
     FFOPT0     = -O0
     FFOPT      = -O3
+    FFOPTO3    = -O3
     FFOPTO5    = -O5
     FFACC      = #-offload-build #-no-offload
     FFOPENMP   = -openmp
     FFWARN     = -warn all
+    FFWARNEXTRA= 
     FFDEBUGINFO= -g
     FFDEBUG    = -check bounds -check format -check output_conversion -check pointers -check uninit -debug full -gen-interface
     FFPE       = -fpe0 
@@ -25,6 +27,7 @@ ifeq ($(FCOMPILER),1)
     FFDLL      = -fPIC
     FFTRACE    = -traceback
     FFBYTERECL = -assume byterecl
+    FFSAVE     = -save
 ifeq ($(OSNAME),windows)
     FFOPT0     = -O0
     FFOPTO5    = -O3
@@ -37,6 +40,7 @@ ifeq ($(OSNAME),windows)
     FFDEBUG    = -check:bounds -check:format -check:output_conversion -check:pointers -check:uninit -debug:full -gen-interface
     FFF95      = -assume:norealloc_lhs
     FFDLL      = /libs:dll 
+    FFSAVE     = /Qsave
 #      FFDLL      = /iface:stdcall 
 endif
 endif
@@ -52,6 +56,7 @@ ifeq ($(FCOMPILER),0)
     FFNOLOGO   = 
     FFFREE     = -free 
     FFOPT      = -O3
+    FFOPTO3    = -O3
     FFOPTO5    = -O5
     FFOPENMP   = -fopenmp
     FFWARN     = -Wall -Wno-intrinsic-shadow  -Wtabs -Wuninitialized -O -Wunused
@@ -239,20 +244,23 @@ endif
 
 ifeq ($(OSNAME),linux) 
     ifeq ($(LIB_ACCELERATOR),2)
-        LDFLAGS = -llapack
+        LDFLAGS_MKL = 
+        LIBS_MKL    = -llapack
     else
-        LDFLAGS = -L$(MKL_DIR) -Wl,-R/$(MKL_DIR) $(MKL_INTERF) $(MKL_THREAD) $(MKL_COMPUT) $(MKL_RUNTIME) 
+        LDFLAGS_MKL = -Wl,-R/$(MKL_DIR)
+        LIBS_MKL    = -L$(MKL_DIR) $(MKL_INTERF) $(MKL_THREAD) $(MKL_COMPUT) $(MKL_RUNTIME) 
     endif
 
-    LDFLAGS_DLL = $(LDFLAGS) 
+    LDFLAGS_DLL= $(LDFLAGS_MKL)
 endif
 ifeq ($(OSNAME),windows) 
     ifeq ($(FCOMPILER),1)
 	    # DEBUG:
         #LDFLAGS =/nologo /SUBSYSTEM:WINDOWS /INCREMENTAL:NO 
 	    # RELEASE:
-        LDFLAGS      =/nologo /SUBSYSTEM:WINDOWS 
-    LDFLAGS_DLL  =/nologo /SUBSYSTEM:WINDOWS /DLL /OUT:
+        LDFLAGS_MKL  =/nologo /SUBSYSTEM:CONSOLE -threads -dbglibs    
+        LIBS_MKL     =/Qmkl:sequential 
+        LDFLAGS_DLL  =/DLL /OUT:
 	# if threaded, IO might fail, but seem ok with dbglibs. Otherwise het rid of IO, or threads. 
     #FFLAGS+=/threads /dbglibs
     else

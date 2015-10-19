@@ -4,38 +4,61 @@
 # --------------------------------------------------------------------------------
 ifeq ($(OS),Windows_NT)
     OSNAME=windows
-    ARCHI=win32
+    #REG=$(shell reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Environment" /v PROCESSOR_ARCHITECTURE)
+
+    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+        ARCHI = amd64
+    endif
+    
     ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-        ARCHI=amd64
+        ARCHI ?= amd64
+    else
+        ARCHI ?= ia32
     endif
-    ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-        ARCHI=ia32
+
+    OSDEF=-DWINDOWS -D_WIN32
+	# Forcing the usual preprocessor flags
+    ifeq ($(ARCHI),amd64)
+        OSDEF := $(OSDEF) -D_WIN64
     endif
+
+
  	# Object file extension
-	o=obj
+    o=obj
+    lib=lib
+    dll=dll
+	#
 
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
          OSNAME=linux
-	else ifeq ($(UNAME_S),Darwin)
+    else ifeq ($(UNAME_S),Darwin)
         OSNAME=mac
     endif
     UNAME_P := $(shell uname -p)
     UNAME_M := $(shell uname -m)
     ifeq ($(UNAME_M),x86_64)
         ARCHI=amd64
-	# STUFF BELOW NEED TO BE re-tested..
-	else ifneq ($(filter %86,$(UNAME_P)),)
+    # STUFF BELOW NEED TO BE re-tested..
+    else ifneq ($(filter %86,$(UNAME_P)),)
         ARCHI=ia32
-	else ifneq ($(filter arm%,$(UNAME_P)),)
+    else ifneq ($(filter arm%,$(UNAME_P)),)
         ARCHI=arm
-	else ifneq ($(filter unknown%,$(UNAME_P)),)
+    else ifneq ($(filter unknown%,$(UNAME_P)),)
         ARCHI=ia32
+    endif
+
+    OSDEF=-D__linux__ -D__unix__ -D__LINUX__ -D__UNIX__
+	# Forcing the usual preprocessor flags
+    ifeq ($(ARCHI),amd64)
+        OSDEF := $(OSDEF)
     endif
  
  	# Object file extension
-	o=o
+    o=o
+    lib=a
+    dll=so
 
 endif
 
@@ -54,6 +77,7 @@ ifeq ($(OS),Windows_NT)
     MKDEPF=./_tools/makedepf90.exe
     SHELL=cmd.exe
     LINK=link.exe
+    ARCHIVER=Lib
     CAT=type
     ECHOSAFE=echo(
 else
@@ -67,6 +91,7 @@ else
     MKDEPF=./_tools/makedepf90
     SHELL=/bin/bash
     LINK=LD
+    ARCHIVER=ar
     CAT=cat
     ECHOSAFE=echo 
 endif

@@ -40,7 +40,7 @@ ifeq ($(LIB_ACCELERATOR),)
 endif
 ifeq ($(HAWC),)
 	# HAWC: 0: No hawc, 1: Hawc2aero, 2: hawc2
-	HAWC =0
+    HAWC =0
 endif
 
 # for backward compatibility
@@ -83,13 +83,17 @@ LIB_DIR := $(LIB_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
 DEP_FIL := $(DEP_DIR)$(SLASH)depend-$(OSNAME)-$(ARCHI)
 
 
+# --------------------------------------------------------------------------------
+# --- Includes 
+# --------------------------------------------------------------------------------
+INCS   += -I$(OBJ_DIR)
+
 ######################################################################## }}}
 ### Fortran flags
 ####################################################################### {{{
 include $(OMNIVOR_MKF_DIR)MakefileFortran.mk
 FFLAGS    = $(FFNOLOGO) $(FFFREE) $(FFMODINC)$(OBJ_DIR)
 FFLAGS   += $(FFDLL)
-FFLAGS   += -I$(OBJ_DIR)
 FFLAGS_BASE:=$(FFLAGS)
 # FFLAGS   += $(FFFPP)
 # FFLAGS   += -I./$(INC_DIR)
@@ -112,8 +116,15 @@ FFLAGS   += $(FFTRACE)
 ifeq ($(OSNAME),windows) 
     FFLAGS+= -threads -dbglibs /Qmkl:sequential # VERY IMPORTANT, otherwise message of LAPACK not found at linking
 endif
+
+# --------------------------------------------------------------------------------
+# --- DEFINITIONS for Preprocessor
+# --------------------------------------------------------------------------------
+# Forcing OS
+DEFS+= $(OSDEF)
+# hawc2
 ifeq ($(HAWC),2)
-    FFLAGS   +=  -DHAWC2 -DSYMSYS -DBANDEDKEFF 
+    DEFS +=  -DHAWC2 -DSYMSYS -DBANDEDKEFF 
 endif
 
 
@@ -151,8 +162,8 @@ NOSUPPORT=
 ifeq ($(OPENMP),1)
     SUPPORT:=$(SUPPORT)-openmp
     CFLAGS   += $(CFOPENMP)
-    LDFLAGS   += $(CFOPENMP)
-    LDFLAGS   += $(FFOPENMP)
+    LIBS     += $(CFOPENMP)
+    LIBS     += $(FFOPENMP)
     SUPPORTFLAGS += $(FFOPENMP)
     SUPPORT_DIR +=omnivor/badger/omp
     NOSUPPORT:=$(NOSUPPORT)"-------"
@@ -199,7 +210,7 @@ endif
 ifeq ($(CUDA),1)
     SUPPORT:=$(SUPPORT)-cuda
     ACC_DIR    =omnivor/mouffette/cuda
-    LDFLAGS   += -L/usr/local/cuda/lib64 -I/usr/local/cuda/include -lcudart -lcuda -lstdc++ $(CFOPENMP)
+    LIBS        += -L/usr/local/cuda/lib64 -I/usr/local/cuda/include -lcudart -lcuda -lstdc++ $(CFOPENMP)
     SUPPORT_DIR +=omnivor/badger/cuda
     NOSUPPORT:=$(NOSUPPORT)"-----"
 else
@@ -212,3 +223,12 @@ else
     NOSUPPORT:=$(NOSUPPORT)"----"
     SUPPORT_DIR +=fortlib/portability/mkl1
 endif
+
+
+# --------------------------------------------------------------------------------
+# ---  
+# --------------------------------------------------------------------------------
+# A bit of a specificity for this makefile
+FFLAGS_ALL=$(DEFS) $(INCS) $(FFLAGS)
+LDFLAGS=$(LDFLAGS_MKL)
+LIBS+=$(LIBS_MKL)
