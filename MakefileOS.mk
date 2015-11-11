@@ -23,11 +23,11 @@ ifeq ($(OS),Windows_NT)
     endif
 
 
- 	# Object file extension
+    # File Extensions
     o=obj
     lib=lib
     dll=dll
-	#
+    EXE=.exe
 
 else
     UNAME_S := $(shell uname -s)
@@ -55,10 +55,11 @@ else
         OSDEF := $(OSDEF)
     endif
  
- 	# Object file extension
+    # File Extensions
     o=o
     lib=a
     dll=so
+    EXE=
 
 endif
 
@@ -74,7 +75,7 @@ ifeq ($(OS),Windows_NT)
     SLASH=/
     SLASH := $(subst /,\,$(SLASH))
     TOUCH=echo.>
-    MKDEPF=./_tools/makedepf90.exe
+    MKDEPF=makedepf90.exe
     SHELL=cmd.exe
     LINK=link.exe
     ARCHIVER=Lib
@@ -88,7 +89,7 @@ else
     MKDIR=mkdir -p
     SLASH=/
     TOUCH=touch
-    MKDEPF=./_tools/makedepf90
+    MKDEPF=makedepf90
     SHELL=/bin/bash
     LINK=LD
     ARCHIVER=ar

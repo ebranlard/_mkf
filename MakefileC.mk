@@ -1,6 +1,12 @@
+c=c
+# 0: Gnu compiler GCC
+# 1: intel C Compiler icc
+# 2: visual studio compiler cl.exe
+
 # INTEL C COMPILER
 ifeq ($(CCOMPILER),1)
     CC         = icc
+    COUT       = -o
     CFFREE     =
     CFOPT      = -O3
     CFOPTO5    = -O3
@@ -31,6 +37,7 @@ endif
 # Gcc COMPILER
 ifeq ($(CCOMPILER),0)
     CC         = gcc
+    COUT       = -o
     CFFREE     =
     CFOPT      = -O3
     CFOPTO5    = -O5
@@ -62,4 +69,10 @@ ifeq ($(OSNAME),windows)
     CFDEBUG    = 
     CFDLL      = -fPIC
 endif
+endif
+
+# INTEL C COMPILER
+ifeq ($(CCOMPILER),2)
+    CC         = cl /nologo
+    COUT       = /Fe
 endif
