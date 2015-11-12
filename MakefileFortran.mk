@@ -8,6 +8,7 @@ ifeq ($(FCOMPILER),1)
     FCOMPILERDEF=-D__INTEL_COMPILER
     FOUT_EXE   = -o
     FOUT_OBJ   = -o
+    FOUT_DLL   = -o
     FFNOLOGO   = -nologo
     FFFREE     = -free
     FFOPT0     = -O0
@@ -37,6 +38,7 @@ ifeq ($(FCOMPILER),1)
 ifeq ($(OSNAME),windows)
     FOUT_EXE   = /exe:
     FOUT_OBJ   = /obj:
+    FOUT_DLL   = /out:
     FFOPT0     = -O0
     FFOPTO5    = -O3
     FFOPENMP   = -Qopenmp
@@ -65,6 +67,7 @@ ifeq ($(FCOMPILER),0)
     FCOMPILERDEF=-D__GFORTRAN__
     FOUT_EXE   = -o
     FOUT_OBJ   = -o
+    FOUT_DLL   = -o
     FFNOLOGO   = 
     FFFREE     = -free 
     FFOPT      = -O3
@@ -98,9 +101,11 @@ ifeq ($(FCOMPILER),2)
     FCOMPILERDEF=-DSUN_NOT_DEF
     FOUT_EXE   = -o
     FOUT_OBJ   = -o
+    FOUT_DLL   = -o
     FFFREE     = -free
     FFNOLOGO   = 
     FFOPT      = -O3
+    FFOPTO5    = -O3
     FFOPENMP   = -openmp
     FFWARN     =
     FFDEBUGINFO= -g
@@ -116,15 +121,16 @@ endif
 ifeq ($(FCOMPILER),2)
     FC		   =f90
     FCNAME     =compaq
-    FCOMPILERDEF=-D_DF_VERSION_
+    FCOMPILERDEF=-D_DF_VERSION_ -DCOMPAQ
     FOUT_EXE   = /exe:
     FOUT_OBJ   = /obj:
+    FOUT_DLL   = /out:
     FFNOLOGO   = -nologo
     FFFREE     = -free
-    FFOPT0     = -O0
-    FFOPT      = -O3
-    FFOPTO3    = -O3
-    FFOPTO5    = -O5
+    FFOPT0     = /Optimize=0
+    FFOPT      = /Optimize=3
+    FFOPTO3    = /Optimize=3
+    FFOPTO5    = /Optimize=3
     FFACC      = #-offload-build #-no-offload
     FFOPENMP   = -openmp
     FFWARN     = -warn:all
@@ -133,7 +139,7 @@ ifeq ($(FCOMPILER),2)
     FFDEBUGINFO=
     FFPE       = -fpe0 
     FFDEBUGARG = -check arg_temp_created
-    FFMODINC   = -module 
+    FFMODINC   = /module=
     FFAUTOPAR  = -parallel -par-report1
     FFFPP      = -fpp
     FFF90      = -assume:realloc_lhs -stand f90
