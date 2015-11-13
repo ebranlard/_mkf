@@ -73,11 +73,16 @@ INC_DIR   = _includes
 DEP_DIR   = _build
 UP_DIR    = ../
 
+ifeq ($(RELEASE),0)
+    BUILD=debug
+else
+    BUILD=release
+endif
 ######################################################################## }}}
 ### Using OS Archi for directory hierarchy
 ####################################################################### {{{
-OBJ_DIR2:= $(OBJ_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
-OBJ_DIR := $(OBJ_DIR_RAW)/$(OSNAME)-$(ARCHI)
+OBJ_DIR2:= $(OBJ_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)$(SLASH)$(BUILD)
+OBJ_DIR := $(OBJ_DIR_RAW)/$(OSNAME)-$(ARCHI)/$(BUILD)
 BIN_DIR := $(BIN_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
 LIB_DIR := $(LIB_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
 DEP_FIL := $(DEP_DIR)$(SLASH)depend-$(OSNAME)-$(ARCHI)
@@ -184,6 +189,8 @@ endif
 else
     SUPPORT_DIR +=omnivor/badger/mpi0
     SUPPORT_DIR +=fortlib/portability/mpi0
+    MPIRUN=
+    RUN=
 endif
 ifeq ($(C),1)
     SUPPORT:=$(SUPPORT)-c
