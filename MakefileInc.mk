@@ -123,7 +123,7 @@ else
 	# Using user defined FFLAGS
     FFLAGS:=$(CUSTOM_FFLAGS)
 endif
-FFLAGS:=$(FFLAGS) $(EXTRA_FFLAGS)
+FFLAGS+=$(EXTRA_FFLAGS)
 
 ######################################################################## }}}
 ### C flags
