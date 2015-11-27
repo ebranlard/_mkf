@@ -51,7 +51,6 @@ ifeq ($(OSNAME),windows)
     FFF95      = -assume:norealloc_lhs
     FFDLL      = /libs:dll 
     FFSAVE     = /Qsave
-#      FFDLL      = /iface:stdcall 
 endif
 endif
 
@@ -61,8 +60,7 @@ ifeq ($(FCOMPILER),0)
 # 	              -Wintrinsic-shadow, -Wline-truncation, -Wtarget-lifetime, -Wreal-q-constant -Wunused
 # Other Flags:
 #  -Warray-temporaries -Wcharacter-truncation:
-#     FC		   = gfortran-4.8
-    FC		   = gfortran
+    FC         =gfortran
     FCNAME     =gfortran
     FCOMPILERDEF=-D__GFORTRAN__
     FOUT_EXE   = -o
@@ -96,7 +94,7 @@ endif
 
 # SUN COMPILER
 ifeq ($(FCOMPILER),2)
-    FC		   = f95
+    FC         =f95
     FCNAME     =sun
     FCOMPILERDEF=-DSUN_NOT_DEF
     FOUT_EXE   = -o
@@ -119,7 +117,7 @@ endif
 
 # COMPAQ COMPILER
 ifeq ($(FCOMPILER),2)
-    FC		   =f90
+    FC         =f90
     FCNAME     =compaq
     FCOMPILERDEF=-D_DF_VERSION_ -DCOMPAQ
     FOUT_EXE   = /exe:
@@ -142,19 +140,20 @@ ifeq ($(FCOMPILER),2)
     FFMODINC   = /module=
     FFAUTOPAR  = -parallel -par-report1
     FFFPP      = -fpp
-    FFF90      = -assume:realloc_lhs -stand f90
-    FFF95      = -assume:realloc_lhs -stand f95
-    FFF03      = -assume:realloc_lhs -stand f03
     FFTRACE    = -traceback
     FFBYTERECL = -assume byterecl
     FFDLL      = -fPIC
     FFDLL      = /libs:dll 
     FFSAVE     = /Qsave
-#      FFDLL      = /iface:stdcall 
 endif
 
 
-
+# --------------------------------------------------------------------------------
+# ---  USER OVERRIDE
+# --------------------------------------------------------------------------------
+ifneq ($(CUSTOM_FC),)
+    FC=$(CUSTOM_FC)
+endif
 
 # --------------------------------------------------------------------------------
 # --- MKL LIBRARY 
@@ -315,8 +314,6 @@ ifeq ($(OSNAME),linux)
             LIBS_MKL    += -L$(MKL_DIR) $(MKL_INTERF) $(MKL_THREAD) $(MKL_COMPUT) $(MKL_RUNTIME) 
         endif
     endif
-
-    LDFLAGS_DLL= $(LDFLAGS_MKL)
 endif
 ifeq ($(OSNAME),windows) 
     ifeq ($(FCOMPILER),1)
@@ -325,12 +322,10 @@ ifeq ($(OSNAME),windows)
 	    # RELEASE:
         LDFLAGS_MKL  =/nologo /SUBSYSTEM:CONSOLE -threads -dbglibs    
         LIBS_MKL     =/Qmkl:sequential 
-        LDFLAGS_DLL  =/DLL /OUT:
 	# if threaded, IO might fail, but seem ok with dbglibs. Otherwise het rid of IO, or threads. 
     #FFLAGS+=/threads /dbglibs
     else
         LDFLAGS_MKL += NOT_SET_WINDOWS_NOT_IFORT
-        LDFLAGS_DLL += NOT_SET_WINDOWS_NOT_IFORT
         LIBS_MKL    += NOT_SET_WINDOWS_NOT_IFORT
     endif
 endif

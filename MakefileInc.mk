@@ -88,68 +88,67 @@ LIB_DIR := $(LIB_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
 DEP_FIL := $(DEP_DIR)$(SLASH)depend-$(OSNAME)-$(ARCHI)
 
 
-# --------------------------------------------------------------------------------
-# --- Includes 
-# --------------------------------------------------------------------------------
-INCS   += -I$(OBJ_DIR)
 
 ######################################################################## }}}
 ### Fortran flags
 ####################################################################### {{{
 include $(OMNIVOR_MKF_DIR)MakefileFortran.mk
-FFLAGS    = $(FFNOLOGO) $(FFFREE) $(FFMODINC)$(OBJ_DIR)
-FFLAGS   += $(FFDLL)
-FFLAGS_BASE:=$(FFLAGS)
-# FFLAGS   += $(FFFPP)
-# FFLAGS   += -I./$(INC_DIR)
-# FFLAGS   += $(FFF95)
-# FFLAGS   += $(FFBYTERECL)  # !!!!!!!!!!!!!!!!! Important for this program
-ifeq ($(RELEASE),0)
-    FFLAGS   += $(FFDEBUGINFO)
-    FFLAGS   += $(FFDEBUG)
-    FFLAGS   += $(FFPE)
-#     FFLAGS   += $(FFDEBUGARG)   # warn for array copies
-    FFLAGS   += $(FFWARN)
-    FFLAGS   += $(FFWARNEXTRA)
-    FFLAGS   += $(FFWARNERROR)
-    FFLAGS   += $(FFOPT0)
+ifeq ($(CUSTOM_FFLAGS),)
+	# Automatic configuration of FFLAGS
+    FFLAGS    = $(FFNOLOGO) $(FFFREE) $(FFMODINC)$(OBJ_DIR)
+    FFLAGS   += $(FFDLL)
+    FFLAGS_BASE:=$(FFLAGS)
+    # FFLAGS   += $(FFFPP)
+    # FFLAGS   += -I./$(INC_DIR)
+    # FFLAGS   += $(FFF95)
+    # FFLAGS   += $(FFBYTERECL)  # !!!!!!!!!!!!!!!!! Important for this program
+    ifeq ($(RELEASE),0)
+        FFLAGS   += $(FFDEBUGINFO)
+        FFLAGS   += $(FFDEBUG)
+        FFLAGS   += $(FFPE)
+    #     FFLAGS   += $(FFDEBUGARG)   # warn for array copies
+        FFLAGS   += $(FFWARN)
+        FFLAGS   += $(FFWARNEXTRA)
+        FFLAGS   += $(FFWARNERROR)
+        FFLAGS   += $(FFOPT0)
+    else
+        FFLAGS   += $(FFOPTO5)
+    endif
+    FFLAGS   += $(FFTRACE)
+    
+    ifeq ($(OSNAME),windows) 
+        FFLAGS+= -threads -dbglibs /Qmkl:sequential # VERY IMPORTANT, otherwise message of LAPACK not found at linking
+    endif
 else
-    FFLAGS   += $(FFOPTO5)
+	# Using user defined FFLAGS
+    FFLAGS:=$(CUSTOM_FFLAGS)
 endif
-FFLAGS   += $(FFTRACE)
-
-ifeq ($(OSNAME),windows) 
-    FFLAGS+= -threads -dbglibs /Qmkl:sequential # VERY IMPORTANT, otherwise message of LAPACK not found at linking
-endif
-
-# --------------------------------------------------------------------------------
-# --- DEFINITIONS for Preprocessor
-# --------------------------------------------------------------------------------
-# Forcing OS
-DEFS+= $(OSDEF)
-# hawc2
-ifeq ($(HAWC),2)
-    DEFS +=  -DHAWC2 -DSYMSYS -DBANDEDKEFF 
-endif
-
+FFLAGS:=$(FFLAGS) $(EXTRA_FFLAGS)
 
 ######################################################################## }}}
 ### C flags
 ####################################################################### {{{
 include $(OMNIVOR_MKF_DIR)MakefileC.mk
-CFLAGS    = $(CFDLL)
-CFLAGS   += -I$(OBJ_DIR)
-CFLAGS   += $(CFC99)
-ifeq ($(RELEASE),0)
-    CFLAGS   += $(CFDEBUGINFO)
-    CFLAGS   += $(CFDEBUG)
-    CFLAGS   += $(CFWARN)
-    CFLAGS   += $(CFWARNEXTRA)
-    CFLAGS   += $(CFWARNERROR)
+ifeq ($(CUSTOM_CFLAGS),)
+	# Automatic configuration of CFLAGS
+    CFLAGS    = $(CFDLL)
+    CFLAGS   += -I$(OBJ_DIR)
+    CFLAGS   += $(CFC99)
+    ifeq ($(RELEASE),0)
+        CFLAGS   += $(CFDEBUGINFO)
+        CFLAGS   += $(CFDEBUG)
+        CFLAGS   += $(CFWARN)
+        CFLAGS   += $(CFWARNEXTRA)
+        CFLAGS   += $(CFWARNERROR)
+    else
+        CFLAGS   += $(CFOPTO5)
+    endif
+    # CFLAGS   += $(CFTRACE)
 else
-    CFLAGS   += $(CFOPTO5)
+	# Using user defined CFLAGS
+    CFLAGS:=$(CUSTOM_CFLAGS)
 endif
-# CFLAGS   += $(CFTRACE)
+CFLAGS+=$(EXTRA_CFLAGS)
 
 ######################################################################## }}}
 ### CUDA flags
@@ -158,7 +157,7 @@ include $(OMNIVOR_MKF_DIR)MakefileCUDA.mk
 NVCFLAGS   += $(NVCFOPT) $(NVCFDEBUGINFO)
 
 ######################################################################## }}}
-### LINKER flags and Acceleration support
+### SUPPORTS
 ####################################################################### {{{
 SUPPORT=
 SUPPORTFLAGS=
@@ -167,8 +166,8 @@ NOSUPPORT=
 ifeq ($(OPENMP),1)
     SUPPORT:=$(SUPPORT)-openmp
     CFLAGS   += $(CFOPENMP)
-    LIBS     += $(CFOPENMP)
-    LIBS     += $(FFOPENMP)
+    LIBS_OMP += $(CFOPENMP)
+    LIBS_OMP += $(FFOPENMP)
     SUPPORTFLAGS += $(FFOPENMP)
     SUPPORT_DIR +=omnivor/badger/omp
     NOSUPPORT:=$(NOSUPPORT)"-------"
@@ -181,6 +180,7 @@ ifeq ($(OPENMP),0)
 endif
     SUPPORT:=$(SUPPORT)-mpi
     SUPPORTFLAGS += -lmpi
+    LIBS_MPI += -lmpi
 	# Overriding compiler
     FC  =   $(MPIFC)
     SUPPORT_DIR +=omnivor/badger/mpi
@@ -217,7 +217,7 @@ endif
 ifeq ($(CUDA),1)
     SUPPORT:=$(SUPPORT)-cuda
     ACC_DIR    =omnivor/mouffette/cuda
-    LIBS        += -L/usr/local/cuda/lib64 -I/usr/local/cuda/include -lcudart -lcuda -lstdc++ $(CFOPENMP)
+    LIBS_CUDA += -L/usr/local/cuda/lib64 -I/usr/local/cuda/include -lcudart -lcuda -lstdc++ $(CFOPENMP)
     SUPPORT_DIR +=omnivor/badger/cuda
     NOSUPPORT:=$(NOSUPPORT)"-----"
 else
@@ -235,11 +235,69 @@ else
     endif
 endif
 
+# --------------------------------------------------------------------------------
+# --- LIBS 
+# --------------------------------------------------------------------------------
+ifeq ($(CUSTOM_LIBS),)
+	# Automatic configuration of LIBS
+    LIBS=$(LIBS_OMP) $(LIBS_MKL) $(LIBS_LAPACK) $(LIBS_MPI)
+else
+	# Using user defined LIBS
+    LIBS:=$(CUSTOM_LIBS)
+endif
+LIBS+=$(EXTRA_LIBS)
+
+# --------------------------------------------------------------------------------
+# --- Includes 
+# --------------------------------------------------------------------------------
+ifeq ($(CUSTOM_INCS),)
+	# Automatic configuration of INCS
+    INCS   += -I$(OBJ_DIR)
+else
+	# Using user defined INCS
+    INCS:=$(CUSTOM_INCS)
+endif
+INCS+=$(EXTRA_INCS)
+
+# --------------------------------------------------------------------------------
+# --- DEFINITIONS for Preprocessor
+# --------------------------------------------------------------------------------
+ifeq ($(CUSTOM_DEFS),)
+	# Automatic configuration of DEFS
+    # Forcing OS
+    DEFS+= $(OSDEF)
+    # hawc2
+    ifeq ($(HAWC),2)
+        DEFS +=  -DHAWC2 -DSYMSYS -DBANDEDKEFF 
+    endif
+else
+	# Using user defined DEFS
+    DEFS:=$(CUSTOM_DEFS)
+endif
+DEFS+=$(EXTRA_DEFS) 
+
+# --------------------------------------------------------------------------------
+# --- Linker FLAGS 
+# --------------------------------------------------------------------------------
+ifeq ($(CUSTOM_LDFLAGS),)
+	# Automatic configuration of LDFLAGS
+    LDFLAGS+=$(LDFLAGS_MKL) $(LDFLAGS_LAPACK)
+else
+	# Using user defined LDFLAGS
+    LDFLAGS:=$(CUSTOM_LDFLAGS)
+endif
+LDFLAGS+=$(EXTRA_LDFLAGS) 
+
+# TODO
+LDFLAGS_DLL:=$(EXTRA_LDFLAGS) $(LDFLAGS_DLL) 
 
 # --------------------------------------------------------------------------------
 # ---  
 # --------------------------------------------------------------------------------
 # A bit of a specificity for this makefile
 FFLAGS_ALL=$(DEFS) $(INCS) $(FFLAGS)
-LDFLAGS=$(LDFLAGS_MKL)
-LIBS+=$(LIBS_MKL)
+
+
+
+
+

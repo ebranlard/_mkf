@@ -1,4 +1,4 @@
-# This make file should maybe be updated according to: http://mad-scientist.net/make/multi-arch.html
+# This makefile was originally inspired from: http://mad-scientist.net/make/multi-arch.html
 #--------------------------------------------------------------------------------
 # ---  Architecture, system name, objects
 # --------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ else
     TOUCH=touch
     MKDEPF=makedepf90
     SHELL=/bin/bash
-    LD=LD
+    LD=ld
     LD_OUT=-o
     LD_DLL=
     AR=ar
@@ -104,3 +104,15 @@ endif
 
 
 HOSTNAME=$(shell hostname)
+
+
+# --------------------------------------------------------------------------------
+# --- USER Overrides 
+# --------------------------------------------------------------------------------
+ifneq ($(CUSTOM_LD),)
+    LD=$(CUSTOM_LD)
+endif
+ifneq ($(CUSTOM_AR),)
+    AR=$(CUSTOM_AR)
+endif
+
