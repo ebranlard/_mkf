@@ -303,12 +303,17 @@ endif
     
 
 ifeq ($(OSNAME),linux) 
-    ifeq ($(LIB_ACCELERATOR),2)
-        LDFLAGS_MKL += 
-        LIBS_MKL    += -llapack
+	# test if 
+    ifeq ($(LIB_ACCELERATOR),3)
+        LIBS_MKL += $(LAPACK_LINK)
     else
-        LDFLAGS_MKL += -Wl,-R/$(MKL_DIR)
-        LIBS_MKL    += -L$(MKL_DIR) $(MKL_INTERF) $(MKL_THREAD) $(MKL_COMPUT) $(MKL_RUNTIME) 
+        ifeq ($(LIB_ACCELERATOR),2)
+            LDFLAGS_MKL += 
+            LIBS_MKL    += -llapack
+        else
+            LDFLAGS_MKL += -Wl,-R/$(MKL_DIR)
+            LIBS_MKL    += -L$(MKL_DIR) $(MKL_INTERF) $(MKL_THREAD) $(MKL_COMPUT) $(MKL_RUNTIME) 
+        endif
     endif
 
     LDFLAGS_DLL= $(LDFLAGS_MKL)

@@ -32,7 +32,7 @@ ifeq ($(CCOMPILER),) # C: 0 or 1
     CCOMPILER =$(FCOMPILER)
 endif
 ifeq ($(LIB_ACCELERATOR),)
-    # LIB_ACCELERATOR: 0: MKL sequential, 1: MKL multi_thread, 2: standard libraries
+	# LIB_ACCELERATOR: 0: MKL sequential, 1: MKL multi_thread, 2: standard libraries, 3: custom linking
     LIB_ACCELERATOR=1
     ifeq ($(VPM),1) 
         LIB_ACCELERATOR=1
@@ -223,12 +223,16 @@ ifeq ($(CUDA),1)
 else
     SUPPORT_DIR +=omnivor/badger/cuda0
 endif
-ifeq ($(LIB_ACCELERATOR),2)
+ifeq ($(LIB_ACCELERATOR),3)
     SUPPORT_DIR +=fortlib/portability/mkl0
 else
-    SUPPORT:=$(SUPPORT)-mkl
-    NOSUPPORT:=$(NOSUPPORT)"----"
-    SUPPORT_DIR +=fortlib/portability/mkl1
+    ifeq ($(LIB_ACCELERATOR),2)
+        SUPPORT_DIR +=fortlib/portability/mkl0
+    else
+        SUPPORT:=$(SUPPORT)-mkl
+        NOSUPPORT:=$(NOSUPPORT)"----"
+        SUPPORT_DIR +=fortlib/portability/mkl1
+    endif
 endif
 
 
