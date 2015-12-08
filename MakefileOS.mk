@@ -3,23 +3,23 @@
 # ---  Architecture, system name, objects
 # --------------------------------------------------------------------------------
 ifeq ($(OS),Windows_NT)
-    OSNAME=windows
+    OS_NAME=windows
     #REG=$(shell reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Environment" /v PROCESSOR_ARCHITECTURE)
 
     ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-        ARCHI = amd64
+        OS_ARCHI = amd64
     endif
     
     ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-        ARCHI ?= amd64
+        OS_ARCHI ?= amd64
     else
-        ARCHI ?= ia32
+        OS_ARCHI ?= ia32
     endif
 
-    OSDEF=-DWINDOWS -D_WIN32
+    OS_DEF=-DWINDOWS -D_WIN32
 	# Forcing the usual preprocessor flags
     ifeq ($(ARCHI),amd64)
-        OSDEF := $(OSDEF) -D_WIN64
+        OS_DEF := $(OS_DEF) -D_WIN64
     endif
 
 
@@ -32,27 +32,27 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-         OSNAME=linux
+         OS_NAME=linux
     else ifeq ($(UNAME_S),Darwin)
-        OSNAME=mac
+        OS_NAME=mac
     endif
     UNAME_P := $(shell uname -p)
     UNAME_M := $(shell uname -m)
     ifeq ($(UNAME_M),x86_64)
-        ARCHI=amd64
+        OS_ARCHI=amd64
     # STUFF BELOW NEED TO BE re-tested..
     else ifneq ($(filter %86,$(UNAME_P)),)
-        ARCHI=ia32
+        OS_ARCHI=ia32
     else ifneq ($(filter arm%,$(UNAME_P)),)
-        ARCHI=arm
+        OS_ARCHI=arm
     else ifneq ($(filter unknown%,$(UNAME_P)),)
-        ARCHI=ia32
+        OS_ARCHI=ia32
     endif
 
-    OSDEF=-D__linux__ -D__unix__ -D__LINUX__ -D__UNIX__
+    OS_DEF=-D__linux__ -D__unix__ -D__LINUX__ -D__UNIX__
 	# Forcing the usual preprocessor flags
-    ifeq ($(ARCHI),amd64)
-        OSDEF := $(OSDEF)
+    ifeq ($(OS_ARCHI),amd64)
+        OS_DEF := $(OS_DEF)
     endif
  
     # File Extensions
@@ -69,6 +69,7 @@ endif
 ifeq ($(OS),Windows_NT)
     # System
     RM=del /q
+    RMDIR=rmdir /q /s 
     LN=copy /y
     CP=copy /y
     MKDIR=mkdir 
@@ -81,11 +82,21 @@ ifeq ($(OS),Windows_NT)
     LD_OUT=/out:
     LD_DLL=/nologo /dll
     AR=Lib
+    AR_OUT=/out:
     CAT=type
+    GREP=find /n 
     ECHOSAFE=echo(
+    ERR_TO_NULL= 2>nul
+    ERR_TO_STD= 2>&1
+    GREP_STATUS =X$(shell grep --version $(ERR_TO_NULL))
+    ifneq ($(GREP_STATUS),X)
+        GREP=grep
+    endif
+
 else
     # System
     RM=rm -rf
+    RMDIR=rm -rf
     LN=ln -sf
     CP=cp
     MKDIR=mkdir -p
@@ -97,8 +108,12 @@ else
     LD_OUT=-o
     LD_DLL=
     AR=ar
+    AR_OUT=
     CAT=cat
+    GREP=grep
     ECHOSAFE=echo 
+    ERR_TO_NULL= 2>/dev/null
+    ERR_TO_STD= 2>&1
 endif
 
 

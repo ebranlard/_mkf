@@ -35,7 +35,7 @@ ifeq ($(FCOMPILER),1)
     FFTRACE    = -traceback
     FFBYTERECL = -assume byterecl
     FFSAVE     = -save
-ifeq ($(OSNAME),windows)
+ifeq ($(OS_NAME),windows)
     FOUT_EXE   = /exe:
     FOUT_OBJ   = /obj:
     FOUT_DLL   = /out:
@@ -52,6 +52,10 @@ ifeq ($(OSNAME),windows)
     FFDLL      = /libs:dll 
     FFSAVE     = /Qsave
 endif
+    # Checking that compiler is present
+    #ifeq (, $(shell $(FC)))
+    # $(error " $(FC) not in current shell, load ifort using ifortvars <arch> <vs>")
+    #endif
 endif
 
 # GFORTRAN COMPILER
@@ -86,9 +90,20 @@ ifeq ($(FCOMPILER),0)
     FFDLL      = -fPIC
     FFTRACE    = -fbacktrace -fdump-core 
     FFBYTERECL = 
-ifeq ($(OSNAME),windows)
-    FFDLL      = 
+ifeq ($(OS_NAME),windows)
+    FFDLL      = -mrtd
 endif
+    # Checking that compiler is present
+    #ifeq (, $(shell $(FC) -v))
+    # $(error " $(FC) not in current shell. Is it installed on your machine?")
+    #endif
+
+	# Overriding variables defined in MakefileOS... NASTY
+    LD=ld
+    LD_OUT=-o
+    LD_DLL=
+    AR=ar
+    AR_OUT=
 endif
 
 
@@ -112,6 +127,10 @@ ifeq ($(FCOMPILER),2)
     FFAUTOPAR  = -xloopinfo -xautopar
     FFFPP      = -xpp
 #  FFLAGS    = -xopenmp=noopt
+    # Checking that compiler is present
+    #ifeq (, $(shell $(FC)))
+    #	$(error " $(FC) not in current shell. Is it installed on your machine")
+    #endif
 endif
 
 
@@ -145,6 +164,10 @@ ifeq ($(FCOMPILER),2)
     FFDLL      = -fPIC
     FFDLL      = /libs:dll 
     FFSAVE     = /Qsave
+    # Checking that compiler is present
+    #ifeq (, $(shell $(FC) -v))
+    # $(error " $(FC) not in current shell. Is it installed on your machine")
+    #endif
 endif
 
 
@@ -213,7 +236,7 @@ endif
 # This layer helps the threaded MKL to co-operate with compiler level threading. This also provides the
 # sequential version lay
 # CHOICES: lmkl_intel_thread lmkl_gnu_thread lmkl_pgi_thread lmkl_sequential
-ifeq ($(OSNAME),linux) 
+ifeq ($(OS_NAME),linux) 
     ifeq ($(LIB_ACCELERATOR),0)
          MKL_THREAD=-lmkl_sequential
     else
@@ -229,7 +252,7 @@ ifeq ($(OSNAME),linux)
     endif
 endif
 
-ifeq ($(OSNAME),windows) 
+ifeq ($(OS_NAME),windows) 
     ifeq ($(LIB_ACCELERATOR),0)
          MKL_THREAD=-Qmkl:sequential
     else
@@ -263,7 +286,7 @@ ifeq ($(LIB_ACCELERATOR),1)
 endif
 
 
-ifeq ($(OSNAME),linux) 
+ifeq ($(OS_NAME),linux) 
     ifeq ($(ARCHI),ia32)
         MKL_DIR := $(MKL_DIR)$(MKL_32)
     endif
@@ -301,7 +324,7 @@ endif
     #/LIBPATH:"_includes"
     
 
-ifeq ($(OSNAME),linux) 
+ifeq ($(OS_NAME),linux) 
 	# test if 
     ifeq ($(LIB_ACCELERATOR),3)
         LIBS_MKL += $(LAPACK_LINK)
@@ -315,7 +338,7 @@ ifeq ($(OSNAME),linux)
         endif
     endif
 endif
-ifeq ($(OSNAME),windows) 
+ifeq ($(OS_NAME),windows) 
     ifeq ($(FCOMPILER),1)
 	    # DEBUG:
         #LDFLAGS =/nologo /SUBSYSTEM:WINDOWS /INCREMENTAL:NO 

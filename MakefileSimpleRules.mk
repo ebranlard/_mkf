@@ -5,25 +5,26 @@
 echo-%:
 	@echo '$*=$($*)'
 
+
 flags:
 	@echo ""
-	@echo "OS-Archi-Build: " $(OSNAME)-$(ARCHI)-$(BUILD)
+	@echo "OS-Archi:           " $(OS_NAME)-$(OS_ARCHI)
 	@echo ""
-	@echo "SUPPORT:        " $(SUPPORT)
+	@echo "SUPPORT-Archi-buid: " $(SUPPORT) $(ARCHI) $(BUILD)
 	@echo ""
-	@echo "Compilers:      " $(FC) $(CC)
+	@echo "Compilers:          " $(FC) $(CC)
 	@echo ""
-	@echo "C FLAGS:        " $(CFLAGS)
+	@echo "C FLAGS:            " $(CFLAGS)
 	@echo ""
-	@echo "Fortran FLAGS:  " $(FFLAGS)
+	@echo "Fortran FLAGS:      " $(FFLAGS)
 	@echo ""
-	@echo "Linker  FLAGS:  " $(LDFLAGS)
+	@echo "Linker  & FLAGS:    " $(LD) $(LDFLAGS)
 	@echo ""
-	@echo "Archiver FLAGS: " $(AFLAGS)
+	@echo "Archiver& FLAGS:    " $(AR) $(ARFLAGS)
 	@echo ""
-	@echo "INCLUDES:       " $(INCS)
+	@echo "INCLUDES:           " $(INCS)
 	@echo ""
-	@echo "DEFS:           " $(DEFS)
+	@echo "DEFS:               " $(DEFS)
 	@echo ""
-	@echo "LIBS:           " $(LIBS)
+	@echo "LIBS:               " $(LIBS)
 	@echo ""
