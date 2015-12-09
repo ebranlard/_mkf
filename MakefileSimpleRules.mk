@@ -10,9 +10,9 @@ flags:
 	@echo ""
 	@echo "OS-Archi:           " $(OS_NAME)-$(OS_ARCHI)
 	@echo ""
-	@echo "SUPPORT-Archi-buid: " $(SUPPORT) $(ARCHI) $(BUILD)
+	@echo "CONFIG:             " $(CONFIG) "("$(FC_ARCHI) $(BUILD)")"
 	@echo ""
-	@echo "Compilers:          " $(FC) $(CC)
+	@echo "Compilers:          " $(FC) $(CC) "("$(FC_AVAILABLE)")"
 	@echo ""
 	@echo "C FLAGS:            " $(CFLAGS)
 	@echo ""

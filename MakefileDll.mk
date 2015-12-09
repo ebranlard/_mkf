@@ -4,17 +4,22 @@
 include ../_mkf/MakefileFortran.mk
 
 # Note: This is a default makefile to compile a library
-#
+
+# --------------------------------------------------------------------------------
+# --- Defining a configuration string (e.g. windows-amd64-ifort-debug)
+# --------------------------------------------------------------------------------
+CONFIG=$(strip $(OS_NAME))-$(strip $(FC_ARCHI))-$(strip $(FC))
+ifeq ($(RELEASE),0)
+    CONFIG:=$(CONFIG)-debug
+endif
+
+
 # --------------------------------------------------------------------------------
 # --- Defining variables based on OS and fortran
 # --------------------------------------------------------------------------------
-SUPPORT=$(strip $(OS_NAME))-$(strip $(ARCHI))-$(strip $(FC))
-ifeq ($(RELEASE),0)
-    SUPPORT:=$(SUPPORT)-debug
-endif
-LIB_DIR=$(LIB_DIR_BASE)-$(SUPPORT)
+LIB_DIR=$(LIB_DIR_BASE)-$(CONFIG)
 INC_DIR=$(LIB_DIR)$(SLASH)$(INC_DIR_BASE)
-OBJ_DIR=$(OBJ_DIR_BASE)-$(SUPPORT)
+OBJ_DIR=$(OBJ_DIR_BASE)-$(CONFIG)
 LIB_NAME= $(LIB_NAME_BASE)
 ifeq ($(OS_NAME),linux)
     LIB_NAME=lib$(LIB_NAME_BASE)
@@ -37,14 +42,15 @@ DEFS=$(OS_DEF) -D__MAKEFILE__
 # --------------------------------------------------------------------------------
 # --- Compiler Flags 
 # --------------------------------------------------------------------------------
-FFLAGS    = $(FFNOLOGO) $(FFMODINC)$(OBJ_DIR)
-FFLAGS   += $(FFDLL)
+FFLAGS    = $(FF_NOLOGO) $(FF_MODINC)$(OBJ_DIR)
+FFLAGS   += $(FF_DLL)
 ifeq ($(RELEASE),0)
-    FFLAGS   += $(FFDEBUGINFO) $(FFDEBUG) $(FFPE) $(FFWARN) $(FFWARNEXTRA) $(FFWARNERROR) $(FFOPT0)
-    FFLAGS   += $(FFTRACE)
+    FFLAGS   += $(FF_DEBUGINFO) $(FF_DEBUG) $(FF_PE) $(FF_WARN) $(FF_WARNEXTRA) $(FF_OPT0)
+    #FFLAGS   += $(FF_WARNERROR) 
+    FFLAGS   += $(FF_TRACE)
     BUILD=debug
 else
-    FFLAGS   += $(FFOPTO5)
+    FFLAGS   += $(FF_OPTO5)
     BUILD=release
 endif
 FFLAGS   += $(FFLAGS_EXTRA)
@@ -60,7 +66,7 @@ else
 	# c: create
 	# q: quickly append without checking for replacements
     #ARFLAGS=-cq 
-    
+    ARFLAGS=-r
 endif
 ARFLAGS+= $(ARFLAGS_EXTRA)
 
@@ -104,12 +110,10 @@ vpath %.for
 
 all: $(RULES)
 
+clean:OBJ_DIRS:=$(wildcard $(OBJ_DIR_BASE)*)
 clean:
-ifeq ($(OS_NAME),windows)
-	@if exist $(OBJ_DIR) $(RMDIR) $(OBJ_DIR) $(ERR_TO_NULL)
-else
-	@$(RMDIR) $(OBJ_DIR) $(ERR_TO_NULL)
-endif
+	@mkdir DUMMY
+	@$(RMDIR) DUMMY $(OBJ_DIRS) $(ERR_TO_NULL)
 	@echo "- $(LIB_NAME_BASE) lib cleaned"
 
 purge: clean
@@ -140,7 +144,7 @@ $(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll): $(LIB_DIR) $(INC_DIR) $(OBJ_DIR) $(OBJ)
 ifeq ($(OS_NAME),windows)
 	$(LD) $(LDFLAGS) $(LD_OUT)"$(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll)" $(OBJ_DIR)$(SLASH)*.$(o)
 else
-	@$(FC) $(DEFS) $(INCS) $(LDFLAGS) -shared -Wl,-soname,$(LIB_NAME).$(dll).1  $(OBJ_DIR)$(SLASH)*.$(o) $(LIBS) $(LD_OUT)$(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll) 
+	$(FC) $(DEFS) $(INCS) $(LDFLAGS) -shared -Wl,-soname,$(LIB_NAME).$(dll).1  $(OBJ_DIR)$(SLASH)*.$(o) $(LIBS) $(LD_OUT)$(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll) 
 endif
 
 

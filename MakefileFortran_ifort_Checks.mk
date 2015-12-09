@@ -1,9 +1,10 @@
 # --------------------------------------------------------------------------------
 # --- Description 
 # --------------------------------------------------------------------------------
-# This Makefile perform checks for intel fortran compiler :
+# This Makefile perform checks for the gfortran compiler :
 #  - If the compiler is available, the variable STATUS is set to 1
 #  - The architecture the compiler will use to compile is set in ARCHI
+#  - The variable FC_AVAILABLE is incremented
 #
 # This makefile requires MakefileOS
 
@@ -11,29 +12,35 @@
 # ---  Requirements
 # --------------------------------------------------------------------------------
 ifeq ($(ERR_TO_STD),)
-    $(warning 'MakefileFortranDetectIfort needs MakefileOS' )
+    $(warning 'MakefileFortran_ifort_Checks needs MakefileOS' )
     ERR_TO_STD=2>&1
     GREP=grep
 endif
 
 # --------------------------------------------------------------------------------
-# --- Gfortran 
+# --- Intel Fortran  
 # --------------------------------------------------------------------------------
-GFORTRAN_STATUS =X$(shell gfortran --version $(ERR_TO_NULL))
-ifeq ($(GFORTRAN_STATUS),X)
-    GFORTRAN_STATUS=0
+IFORT_STATUS=X$(shell ifort --version $(ERR_TO_STD) | $(GREP) "Intel")
+ifeq ($(IFORT_STATUS),X)
+    IFORT_STATUS=0
 else
-    GFORTRAN_STATUS=1
+    IFORT_STATUS=1
 	# --- Detecting architecture for compilation
-    GFORTRAN_ARCHI=X$(shell gfortran -v $(ERR_TO_STD) | $(GREP) "mingw32")
-    ifneq ($(GFORTRAN_ARCHI),X)
-        GFORTRAN_ARCHI=ia32
+    ifeq ($(OS_NAME),linux)
+	    # Temporary hack
+        IFORT_ARCHI=$(OS_ARCHI)
     else
-        GFORTRAN_ARCHI=X$(shell gfortran -v $(ERR_TO_STD) | $(GREP) "x86_64")
-        ifneq ($(GFORTRAN_ARCHI),X)
-            GFORTRAN_ARCHI=amd64
+        IFORT_ARCHI=X$(shell ifort --version $(ERR_TO_STD) | $(GREP) "IA-32")
+        ifneq ($(IFORT_ARCHI),X)
+            IFORT_ARCHI=ia32
         else
-            $(error('Cannot detect gfortran architecture'))
+            IFORT_ARCHI=X$(shell ifort --version $(ERR_TO_STD) | $(GREP) "64")
+            ifneq ($(IFORT_ARCHI),X)
+                IFORT_ARCHI=amd64
+            else
+                $(error 'Cannot detect intel fortran architecture')
+            endif
         endif
     endif
+    FC_AVAILABLE+=ifort-$(IFORT_ARCHI)
 endif
