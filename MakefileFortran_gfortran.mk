@@ -32,7 +32,8 @@ FF_F03      = -ffree-line-length-none
 FF_NOLOGO   = 
 # Windows Specific flags
 ifeq ($(OS_NAME),windows)
-FF_DLL      = -mrtd
+FF_DLL      = 
+# -mrtd # Causes segfault!
 endif
 # Checking that compiler is present
 ifeq ($(GFORTRAN_STATUS),)

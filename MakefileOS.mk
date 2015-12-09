@@ -88,6 +88,8 @@ ifeq ($(OS),Windows_NT)
     ECHOSAFE=echo(
     ERR_TO_NULL= 2>nul
     ERR_TO_STD= 2>&1
+    RUN_NL=&
+    EXEC=
     GREP_STATUS =X$(shell grep --version $(ERR_TO_NULL))
     ifneq ($(GREP_STATUS),X)
         GREP=grep
@@ -112,6 +114,8 @@ else
     CAT=cat
     GREP=grep
     ECHOSAFE=echo 
+    RUN_NL=;
+    EXEC=./
     ERR_TO_NULL= 2>/dev/null
     ERR_TO_STD= 2>&1
 endif

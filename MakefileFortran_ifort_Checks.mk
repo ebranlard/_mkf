@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
 # --- Description 
 # --------------------------------------------------------------------------------
-# This Makefile perform checks for the gfortran compiler :
+# This Makefile perform checks for the ifort compiler :
 #  - If the compiler is available, the variable STATUS is set to 1
 #  - The architecture the compiler will use to compile is set in ARCHI
 #  - The variable FC_AVAILABLE is incremented

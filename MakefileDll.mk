@@ -8,7 +8,7 @@ include ../_mkf/MakefileFortran.mk
 # --------------------------------------------------------------------------------
 # --- Defining a configuration string (e.g. windows-amd64-ifort-debug)
 # --------------------------------------------------------------------------------
-CONFIG=$(strip $(OS_NAME))-$(strip $(FC_ARCHI))-$(strip $(FC))
+CONFIG=$(strip $(OS_NAME))-$(strip $(FC_ARCHI))-$(strip $(FC_NAME))
 ifeq ($(RELEASE),0)
     CONFIG:=$(CONFIG)-debug
 endif
@@ -76,8 +76,8 @@ ARFLAGS+= $(ARFLAGS_EXTRA)
 ifeq ($(OS_NAME),windows)
     ifeq ($(LD),ld)
         # We erase LD
-        LD=$(FC) -shared -mrtd $(LIB_NAME).def 
-        LDFLAGS=-Wl,--enable-runtime-pseudo-reloc,-no-undefined
+        LD=$(FC) -shared $(LIB_NAME).def 
+#         LDFLAGS=-Wl,--enable-runtime-pseudo-reloc,-no-undefined
     else
 	    # WINDOWS - IFORT
         LDFLAGS=$(LD_DLL) /def:$(LIB_NAME).def  
@@ -114,11 +114,13 @@ clean:OBJ_DIRS:=$(wildcard $(OBJ_DIR_BASE)*)
 clean:
 	@mkdir DUMMY
 	@$(RMDIR) DUMMY $(OBJ_DIRS) $(ERR_TO_NULL)
-	@echo "- $(LIB_NAME_BASE) lib cleaned"
+	@echo "[ OK ] $(LIB_NAME_BASE) lib cleaned"
+	@echo ""
 
 purge: clean
 	@$(RM) $(LIB_DIR)$(SLASH)$(LIB_NAME)* $(ERR_TO_NULL)
-	@echo "- $(LIB_NAME_BASE) lib purged"
+	@echo "[ OK ] $(LIB_NAME_BASE) lib purged"
+	@echo ""
 
 
 # --------------------------------------------------------------------------------
@@ -133,6 +135,8 @@ $(LIB_DIR)$(SLASH)$(LIB_NAME).$(lib): $(LIB_DIR) $(INC_DIR) $(OBJ_DIR) $(OBJ)
 	@$(CP) $(OBJ_DIR)$(SLASH)*.mod $(INC_DIR)
 	@$(RM) $(OBJ_DIR)$(SLASH)dummy.mod
 	@$(RM) $(INC_DIR)$(SLASH)dummy.mod
+	@echo "[ OK ] Compilation of static library $(LIB_NAME)"
+	@echo ""
 
 # --------------------------------------------------------------------------------
 # ---  DLL library
@@ -143,9 +147,13 @@ $(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll): $(LIB_DIR) $(INC_DIR) $(OBJ_DIR) $(OBJ)
 	@echo "----------------------------------------------------------------------"
 ifeq ($(OS_NAME),windows)
 	$(LD) $(LDFLAGS) $(LD_OUT)"$(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll)" $(OBJ_DIR)$(SLASH)*.$(o)
+# 	dlltool -z $(LIB_NAME).def --export-all-symbols $(OBJ_DIR)$(SLASH)\*.$(o) -e exports.o
+#     gcc dll.o exports.o -o dll.dll
 else
 	$(FC) $(DEFS) $(INCS) $(LDFLAGS) -shared -Wl,-soname,$(LIB_NAME).$(dll).1  $(OBJ_DIR)$(SLASH)*.$(o) $(LIBS) $(LD_OUT)$(LIB_DIR)$(SLASH)$(LIB_NAME).$(dll) 
 endif
+	@echo "[ OK ] Compilation of dynamic library $(LIB_NAME)"
+	@echo ""
 
 
 # --------------------------------------------------------------------------------
