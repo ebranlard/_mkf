@@ -26,7 +26,7 @@ ifeq ($(FCOMPILER),2)
 endif
 
 # COMPAQ COMPILER
-ifeq ($(FCOMPILER),2)
+ifeq ($(FCOMPILER),3)
     include $(SELF_DIR)MakefileFortran_compaq.mk
 endif
 
