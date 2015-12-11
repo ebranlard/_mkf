@@ -25,7 +25,7 @@ FF_WARNERROR= -warn error
 FF_WARNEXTRA= -Wcharacter-truncation -Wextra -Wno-implicit-interface -Wno-implicit-procedure -Wunderflow -Wunused-dummy-argument -Wunused-parameter -Wmaybe-uninitialized 
 FF_DEBUG    = -fbounds-check -finit-real=nan 
 # Advanced flags
-FF_PE       = -ffpe-trap=invalid,zero,overflow 
+FF_FPE      = -ffpe-trap=invalid,zero,overflow 
 FF_AUTOPAR  = 
 FF_F95      = -std=f95 -fno-realloc-lhs
 FF_F03      = -ffree-line-length-none
@@ -37,7 +37,8 @@ FF_DLL      =
 endif
 # Checking that compiler is present
 ifeq ($(GFORTRAN_STATUS),)
-    include MakefileFortran_gfortran_Checks.mk
+    SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+    include $(SELF_DIR)MakefileFortran_gfortran_Checks.mk
 endif
 ifeq ($(GFORTRAN_STATUS),0)
     $(error " $(FC) not in current shell. Is it installed on your machine?")

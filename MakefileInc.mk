@@ -81,11 +81,11 @@ endif
 ######################################################################## }}}
 ### Using OS Archi for directory hierarchy
 ####################################################################### {{{
-OBJ_DIR2:= $(OBJ_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)$(SLASH)$(BUILD)
-OBJ_DIR := $(OBJ_DIR_RAW)/$(OSNAME)-$(ARCHI)/$(BUILD)
-BIN_DIR := $(BIN_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
-LIB_DIR := $(LIB_DIR_RAW)$(SLASH)$(OSNAME)-$(ARCHI)
-DEP_FIL := $(DEP_DIR)$(SLASH)depend-$(OSNAME)-$(ARCHI)
+OBJ_DIR2:= $(OBJ_DIR_RAW)$(SLASH)$(OS_NAME)-$(ARCHI)$(SLASH)$(BUILD)
+OBJ_DIR := $(OBJ_DIR_RAW)/$(OS_NAME)-$(ARCHI)/$(BUILD)
+BIN_DIR := $(BIN_DIR_RAW)$(SLASH)$(OS_NAME)-$(ARCHI)
+LIB_DIR := $(LIB_DIR_RAW)$(SLASH)$(OS_NAME)-$(ARCHI)
+DEP_FIL := $(DEP_DIR)$(SLASH)depend-$(OS_NAME)-$(ARCHI)
 
 
 
@@ -95,28 +95,28 @@ DEP_FIL := $(DEP_DIR)$(SLASH)depend-$(OSNAME)-$(ARCHI)
 include $(OMNIVOR_MKF_DIR)MakefileFortran.mk
 ifeq ($(CUSTOM_FFLAGS),)
 	# Automatic configuration of FFLAGS
-    FFLAGS    = $(FFNOLOGO) $(FFFREE) $(FFMODINC)$(OBJ_DIR)
-    FFLAGS   += $(FFDLL)
+    FFLAGS    = $(FF_NOLOGO) $(FF_FREE) $(FF_MODINC)$(OBJ_DIR)
+    FFLAGS   += $(FF_DLL)
     FFLAGS_BASE:=$(FFLAGS)
-    # FFLAGS   += $(FFFPP)
+    # FFLAGS   += $(FF_FPP)
     # FFLAGS   += -I./$(INC_DIR)
-    # FFLAGS   += $(FFF95)
-    # FFLAGS   += $(FFBYTERECL)  # !!!!!!!!!!!!!!!!! Important for this program
+    # FFLAGS   += $(FF_F95)
+    # FFLAGS   += $(FF_BYTERECL)  # !!!!!!!!!!!!!!!!! Important for this program
     ifeq ($(RELEASE),0)
-        FFLAGS   += $(FFDEBUGINFO)
-        FFLAGS   += $(FFDEBUG)
-        FFLAGS   += $(FFPE)
-    #     FFLAGS   += $(FFDEBUGARG)   # warn for array copies
-        FFLAGS   += $(FFWARN)
-        FFLAGS   += $(FFWARNEXTRA)
-        FFLAGS   += $(FFWARNERROR)
-        FFLAGS   += $(FFOPT0)
+        FFLAGS   += $(FF_DEBUGINFO)
+        FFLAGS   += $(FF_DEBUG)
+        FFLAGS   += $(FF_PE)
+    #     FFLAGS   += $(FF_DEBUGARG)   # warn for array copies
+        FFLAGS   += $(FF_WARN)
+        FFLAGS   += $(FF_WARNEXTRA)
+        FFLAGS   += $(FF_WARNERROR)
+        FFLAGS   += $(FF_OPT0)
     else
-        FFLAGS   += $(FFOPTO5)
+        FFLAGS   += $(FF_OPTO5)
     endif
-    FFLAGS   += $(FFTRACE)
+    FFLAGS   += $(FF_TRACE)
     
-    ifeq ($(OSNAME),windows) 
+    ifeq ($(OS_NAME),windows) 
         FFLAGS+= -threads -dbglibs /Qmkl:sequential # VERY IMPORTANT, otherwise message of LAPACK not found at linking
     endif
 else
@@ -167,8 +167,8 @@ ifeq ($(OPENMP),1)
     SUPPORT:=$(SUPPORT)-openmp
     CFLAGS   += $(CFOPENMP)
     LIBS_OMP += $(CFOPENMP)
-    LIBS_OMP += $(FFOPENMP)
-    SUPPORTFLAGS += $(FFOPENMP)
+    LIBS_OMP += $(FF_OPENMP)
+    SUPPORTFLAGS += $(FF_OPENMP)
     SUPPORT_DIR +=omnivor/badger/omp
     NOSUPPORT:=$(NOSUPPORT)"-------"
 else

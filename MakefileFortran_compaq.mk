@@ -26,7 +26,7 @@ FF_WARNEXTRA=
 FF_DEBUG    = -check:bounds -check:format -check:output_conversion -check:pointers -check:uninit -debug:full -gen-interface
 FF_DEBUGARG = -check arg_temp_created
 # Advanced flags
-FF_PE       = -fpe0 
+FF_FPE      = -fpe0 
 FF_AUTOPAR  = -parallel -par-report1
 FF_ACC      = #-offload-build #-no-offload
 FF_SAVE     = /Qsave

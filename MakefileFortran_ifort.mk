@@ -26,7 +26,7 @@ FF_WARNEXTRA=
 FF_DEBUG    = -check bounds -check format -check output_conversion -check pointers -check uninit -debug full -gen-interface
 FF_DEBUGARG = -check arg_temp_created
 # Advanced flags
-FF_PE       = -fpe0 
+FF_FPE      = -fpe0 
 FF_AUTOPAR  = -parallel -par-report1
 FF_ACC      = #-offload-build #-no-offload
 FF_F90      = -stand f90
@@ -53,7 +53,8 @@ FF_SAVE     = /Qsave
 endif
 # Checking that compiler is present
 ifeq ($(IFORT_STATUS),)
-    include MakefileFortran_ifort_Checks.mk
+    SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+    include $(SELF_DIR)MakefileFortran_ifort_Checks.mk
 endif
 ifeq ($(IFORT_STATUS),0)
     $(error " $(FC) not in current shell, load ifort using ifortvars <arch> <vs>")

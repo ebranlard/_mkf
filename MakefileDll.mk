@@ -1,3 +1,7 @@
+ifeq ($(DLL_STATIC_FC),)
+    DLL_STATIC_FC=1
+endif
+
 # --------------------------------------------------------------------------------
 # --- Setup Fortran Compiler
 # --------------------------------------------------------------------------------
@@ -12,6 +16,7 @@ CONFIG=$(strip $(OS_NAME))-$(strip $(FC_ARCHI))-$(strip $(FC_NAME))
 ifeq ($(RELEASE),0)
     CONFIG:=$(CONFIG)-debug
 endif
+
 
 
 # --------------------------------------------------------------------------------
@@ -42,18 +47,14 @@ INCS+=$(INC_EXTRA)
 # --------------------------------------------------------------------------------
 DEFS=$(OS_DEF) -D__MAKEFILE__
 DEFS+=$(DEFS_EXTRA)
-# --------------------------------------------------------------------------------
-# --- LIBS
-# --------------------------------------------------------------------------------
-LIBS=
-LIBS+=$(LIBS_EXTRA)
+
 # --------------------------------------------------------------------------------
 # --- Compiler Flags 
 # --------------------------------------------------------------------------------
 FFLAGS    = $(FF_NOLOGO) $(FF_MODINC)$(OBJ_DIR)
 FFLAGS   += $(FF_DLL)
 ifeq ($(RELEASE),0)
-    FFLAGS   += $(FF_DEBUGINFO) $(FF_DEBUG) $(FF_PE) $(FF_WARN) $(FF_WARNEXTRA) $(FF_OPT0)
+    FFLAGS   += $(FF_DEBUGINFO) $(FF_DEBUG) $(FF_FPE) $(FF_WARN) $(FF_WARNEXTRA) $(FF_OPT0)
     #FFLAGS   += $(FF_WARNERROR) 
     FFLAGS   += $(FF_TRACE)
     BUILD=debug
@@ -78,6 +79,11 @@ else
 endif
 ARFLAGS+= $(ARFLAGS_EXTRA)
 
+# --------------------------------------------------------------------------------
+# --- LIBS
+# --------------------------------------------------------------------------------
+LIBS=
+LIBS+=$(LIBS_EXTRA)
 # --------------------------------------------------------------------------------
 # --- Linker flags 
 # --------------------------------------------------------------------------------
@@ -115,6 +121,7 @@ vpath %.for
 
 all: $(RULES)
 
+# This might be dangerous if obj_dir_base empty
 clean:OBJ_DIRS:=$(wildcard $(OBJ_DIR_BASE)*)
 clean:
 	@$(MKDIR) DUMMY
@@ -126,7 +133,6 @@ purge: clean $(LIB_DIR)
 	@$(RM) $(LIB_DIR)$(SLASH)$(LIB_NAME)* $(ERR_TO_NULL)
 	@echo "[ OK ] $(LIB_NAME_BASE) lib purged"
 	@echo ""
-
 
 # --------------------------------------------------------------------------------
 # ---  Static library

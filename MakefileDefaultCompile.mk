@@ -4,8 +4,8 @@ $(OBJ_DIR)/%.$(o): %.for
 
 $(OBJ_DIR)/%.$(o): %.F90
 	@echo "($(CONFIG)):" $< 
-	@$(FC) $(DEFS) $(INCS) $(FFFREE) $(FFLAGS) -c $< $(FOUT_OBJ)$(OBJ_DIR)$(SLASH)$*.$(o)
+	@$(FC) $(DEFS) $(INCS) $(FF_FREE) $(FFLAGS) -c $< $(FOUT_OBJ)$(OBJ_DIR)$(SLASH)$*.$(o)
 
 $(OBJ_DIR)/%.$(o): %.$(f)
 	@echo "($(CONFIG)):" $< 
-	@$(FC) $(DEFS) $(INCS) $(FFFREE) $(FFLAGS) -c $< $(FOUT_OBJ)$(OBJ_DIR)$(SLASH)$*.$(o) 
+	@$(FC) $(DEFS) $(INCS) $(FF_FREE) $(FFLAGS) -c $< $(FOUT_OBJ)$(OBJ_DIR)$(SLASH)$*.$(o) 
